@@ -1,6 +1,6 @@
 /*
-Plugin Name
-Copyright (C) <Year> <Developer> <Email Address>
+obs-brAIn
+Copyright (C) 2023 Roy Shilkrot roy.shil@gmail.com
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -31,7 +31,6 @@ extern const char *PLUGIN_NAME;
 extern const char *PLUGIN_VERSION;
 
 void obs_log(int log_level, const char *format, ...);
-extern void blogva(int log_level, const char *format, va_list args);
 
 #ifdef __cplusplus
 }

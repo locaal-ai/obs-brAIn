@@ -34,6 +34,11 @@ if(ENABLE_QT)
                AUTORCC ON)
 endif()
 
+include(cmake/BuildLlamacpp.cmake)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE Llamacpp)
+
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE src/plugin-main.c)
+
+add_subdirectory(src/llm-dock)
 
 set_target_properties_plugin(${CMAKE_PROJECT_NAME} PROPERTIES OUTPUT_NAME ${_name})
