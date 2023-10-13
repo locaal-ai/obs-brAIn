@@ -1,6 +1,8 @@
 
 #include "llama-inference.h"
 #include "plugin-support.h"
+#include "llm-config-data.h"
+
 #include <obs-module.h>
 
 #include <vector>
@@ -8,11 +10,6 @@
 #include <string>
 #include <algorithm>
 #include <sstream>
-
-const std::string LLAMA_DEFAULT_SYSTEM_PROMPT = R"([INST] <<SYS>>
-You are a helpful, respectful, positive, safe and honest assistant.
-Don't include harmful, unethical, racist, sexist, toxic, dangerous, socially biased, untruthful or illegal content.
-<</SYS>> Q: {0} [/INST] A:)";
 
 std::string replace(const std::string &s, const std::string &from, const std::string &to)
 {
@@ -25,14 +22,15 @@ std::string replace(const std::string &s, const std::string &from, const std::st
 	return result;
 }
 
-std::string get_system_info(const llama_context_params & params) {
-    std::ostringstream os;
+std::string get_system_info(const llama_context_params &params)
+{
+	std::ostringstream os;
 
-    os << "system_info: n_threads = " << params.n_threads;
-		os << " (n_threads_batch = " << params.n_threads_batch << ")";
-    os << " / " << std::thread::hardware_concurrency() << " | " << llama_print_system_info();
+	os << "system_info: n_threads = " << params.n_threads;
+	os << " (n_threads_batch = " << params.n_threads_batch << ")";
+	os << " / " << std::thread::hardware_concurrency() << " | " << llama_print_system_info();
 
-    return os.str();
+	return os.str();
 }
 
 std::vector<llama_token> llama_tokenize(const struct llama_model *model, const std::string &text,
@@ -100,11 +98,6 @@ struct llama_context *llama_init_context(const std::string &model_file_path)
 	// initialize the context
 	struct llama_context_params lparams = llama_context_default_params();
 
-	// tune these to your liking
-	// lparams.n_ctx = 2048;
-	// lparams.seed = 1;
-	// lparams.f16_kv = true;
-
 	struct llama_context *ctx_llama = llama_new_context_with_model(model_llama, lparams);
 
 	if (ctx_llama == nullptr) {
@@ -117,7 +110,7 @@ struct llama_context *llama_init_context(const std::string &model_file_path)
 		return nullptr;
 	}
 
-  obs_log(LOG_INFO, "%s", get_system_info(lparams).c_str());
+	obs_log(LOG_INFO, "%s", get_system_info(lparams).c_str());
 
 	// Warm up in another thread
 	std::thread t([ctx_llama, lparams]() {
@@ -128,10 +121,10 @@ struct llama_context *llama_init_context(const std::string &model_file_path)
 			llama_token_eos(ctx_llama),
 		};
 
-		llama_decode(ctx_llama,
-			     llama_batch_get_one(tokens_list.data(),
-						 (int)std::min(tokens_list.size(), (size_t)lparams.n_batch),
-						 0, 0));
+		llama_decode(ctx_llama, llama_batch_get_one(tokens_list.data(),
+							    (int)std::min(tokens_list.size(),
+									  (size_t)lparams.n_batch),
+							    0, 0));
 		llama_kv_cache_tokens_rm(ctx_llama, -1, -1);
 		llama_reset_timings(ctx_llama);
 
@@ -149,7 +142,7 @@ std::string llama_inference(const std::string &promptIn, struct llama_context *c
 
 	// tokenize the prompt
 	// replace {0} in the system prompt with the prompt
-	std::string prompt = replace(LLAMA_DEFAULT_SYSTEM_PROMPT, "{0}", promptIn);
+	std::string prompt = replace(global_llm_config.system_prompt, "{0}", promptIn);
 
 	std::vector<llama_token> tokens_list;
 	tokens_list = ::llama_tokenize(ctx, prompt, true);
