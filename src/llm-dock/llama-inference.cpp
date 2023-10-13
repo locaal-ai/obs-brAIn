@@ -11,8 +11,7 @@
 
 const std::string LLAMA_DEFAULT_SYSTEM_PROMPT = R"([INST] <<SYS>>
 You are a helpful, respectful, positive, safe and honest assistant.
-Don't include harmful, unethical, racist, sexist, toxic, dangerous, socially biased, or illegal content.
-If you don't know the answer, don't share false information.
+Don't include harmful, unethical, racist, sexist, toxic, dangerous, socially biased, untruthful or illegal content.
 <</SYS>> Q: {0} [/INST] A:)";
 
 std::string replace(const std::string &s, const std::string &from, const std::string &to)
@@ -146,7 +145,6 @@ struct llama_context *llama_init_context(const std::string &model_file_path)
 std::string llama_inference(const std::string &promptIn, struct llama_context *ctx,
 			    std::function<void(const std::string &)> partial_generation_callback)
 {
-	obs_log(LOG_INFO, "%s: prompt = %s", __func__, promptIn.c_str());
 	std::string output = "";
 
 	// tokenize the prompt
