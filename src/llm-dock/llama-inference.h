@@ -1,6 +1,7 @@
 #include <llama.h>
 
 #include <string>
+#include <functional>
 
 struct llama_context *llama_init_context(const std::string &model_file_path);
 

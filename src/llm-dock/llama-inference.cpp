@@ -10,6 +10,7 @@
 #include <string>
 #include <algorithm>
 #include <sstream>
+#include <cmath>
 
 std::string replace(const std::string &s, const std::string &from, const std::string &to)
 {
@@ -42,10 +43,10 @@ std::vector<llama_token> llama_tokenize(const struct llama_model *model, const s
 	n_tokens = llama_tokenize(model, text.data(), (int)text.length(), result.data(),
 				  (int)result.size(), add_bos);
 	if (n_tokens < 0) {
-		result.resize(-n_tokens);
+		result.resize(std::abs((int)n_tokens));
 		int check = llama_tokenize(model, text.data(), (int)text.length(), result.data(),
 					   (int)result.size(), add_bos);
-		GGML_ASSERT(check == (int)-n_tokens);
+		GGML_ASSERT(check == (int)std::abs((int)n_tokens));
 	} else {
 		result.resize(n_tokens);
 	}

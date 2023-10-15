@@ -19,7 +19,7 @@ Don't include harmful, unethical, racist, sexist, toxic, dangerous, socially bia
 	global_llm_config.local_model_path = "";
 	global_llm_config.cloud_model_name = "";
 	global_llm_config.cloud_api_key = "";
-	global_llm_config.temperature = 0.9;
+	global_llm_config.temperature = 0.9f;
 	global_llm_config.max_output_tokens = 64;
 	global_llm_config.system_prompt = LLAMA_DEFAULT_SYSTEM_PROMPT;
 }
