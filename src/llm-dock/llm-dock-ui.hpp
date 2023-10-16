@@ -1,6 +1,15 @@
-#include <QtWidgets>
+#ifndef LLMDOCKWIDGETUI_HPP
+#define LLMDOCKWIDGETUI_HPP
 
-class LLMDockWidgetUI : public QWidget {
+#include <QDockWidget>
+
+QT_BEGIN_NAMESPACE
+namespace Ui {
+class BrainDock;
+}
+QT_END_NAMESPACE
+
+class LLMDockWidgetUI : public QDockWidget {
 	Q_OBJECT
 public:
 	explicit LLMDockWidgetUI(QWidget *parent);
@@ -15,12 +24,7 @@ signals:
 	void update_text_signal(const QString &text, bool partial_generation);
 
 private:
-	QVBoxLayout *layout;
-	QTextEdit *text_edit;
-	QTextEdit *input_text_edit;
-	QHBoxLayout *button_layout;
-	QPushButton *generate_button;
-	QPushButton *clear_button;
-	QPushButton *settings_button;
-	QLabel *error_message_label;
+	Ui::BrainDock *ui;
 };
+
+#endif // LLMDOCKWIDGETUI_HPP

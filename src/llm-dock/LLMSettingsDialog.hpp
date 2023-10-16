@@ -1,4 +1,13 @@
-#include <QtWidgets>
+#ifndef LLMSETTINGSDIALOG_HPP
+#define LLMSETTINGSDIALOG_HPP
+
+#include <QDialog>
+
+QT_BEGIN_NAMESPACE
+namespace Ui {
+class SettingsDialog;
+}
+QT_END_NAMESPACE
 
 /**
   * @brief The LLMSettingsDialog class
@@ -11,7 +20,8 @@ public:
 	explicit LLMSettingsDialog(QWidget *parent);
 	~LLMSettingsDialog();
 
-public slots:
-
 private:
+	Ui::SettingsDialog *ui;
 };
+
+#endif // LLMSETTINGSDIALOG_HPP

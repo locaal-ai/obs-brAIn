@@ -26,6 +26,9 @@ struct llm_config_data {
 
 	// system prompt
 	std::string system_prompt;
+
+	// workflows
+	std::vector<std::string> workflows;
 };
 
 // forward declaration

@@ -22,6 +22,7 @@ Don't include harmful, unethical, racist, sexist, toxic, dangerous, socially bia
 	global_llm_config.temperature = 0.9f;
 	global_llm_config.max_output_tokens = 64;
 	global_llm_config.system_prompt = LLAMA_DEFAULT_SYSTEM_PROMPT;
+	global_llm_config.workflows = {};
 }
 
 void create_config_folder()
@@ -116,6 +117,7 @@ std::string llm_config_data_to_json(const llm_config_data &data)
 	j["temperature"] = data.temperature;
 	j["max_output_tokens"] = data.max_output_tokens;
 	j["system_prompt"] = data.system_prompt;
+	j["workflows"] = data.workflows;
 	return j.dump();
 }
 
@@ -131,5 +133,6 @@ llm_config_data llm_config_data_from_json(const std::string &json)
 	data.temperature = j["temperature"];
 	data.max_output_tokens = j["max_output_tokens"];
 	data.system_prompt = j["system_prompt"];
+	data.workflows = j["workflows"];
 	return data;
 }
