@@ -2,10 +2,10 @@
 
 <div align="center">
 
-[![GitHub](https://img.shields.io/github/license/obs-ai/obs-brain)](https://github.com/obs-ai/obs-brain/blob/main/LICENSE)
-[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/obs-ai/obs-brain/push.yaml)](https://github.com/obs-ai/obs-brain/actions/workflows/push.yaml)
-[![Total downloads](https://img.shields.io/github/downloads/obs-ai/obs-brain/total)](https://github.com/obs-ai/obs-brain/releases)
-[![GitHub release (latest by date)](https://img.shields.io/github/v/release/obs-ai/obs-brain)](https://github.com/obs-ai/obs-brain/releases)
+[![GitHub](https://img.shields.io/github/license/occ-ai/obs-brain)](https://github.com/occ-ai/obs-brain/blob/main/LICENSE)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/occ-ai/obs-brain/push.yaml)](https://github.com/occ-ai/obs-brain/actions/workflows/push.yaml)
+[![Total downloads](https://img.shields.io/github/downloads/occ-ai/obs-brain/total)](https://github.com/occ-ai/obs-brain/releases)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/occ-ai/obs-brain)](https://github.com/occ-ai/obs-brain/releases)
 
 </div>
 
@@ -25,13 +25,13 @@ Roadmap:
 Internally the plugin is running ([llama.cpp](https://github.com/ggerganov/llama.cpp)) locally to inference in real-time on the CPU or GPU.
 
 Check out our other plugins:
-- [Background Removal](https://github.com/royshil/obs-backgroundremoval) removes background from webcam without a green screen.
-- 🚧 Experimental 🚧 [CleanStream](https://github.com/obs-ai/obs-cleanstream) for real-time filler word (uh,um) and profanity removal from live audio stream
-- [URL/API Source](https://github.com/obs-ai/obs-urlsource) that allows fetching live data from an API and displaying it in OBS.
-- [LocalVocal](https://github.com/obs-ai/obs-localvocal) for real-time speech to text transcription in OBS.
+- [Background Removal](https://github.com/occ-ai/obs-backgroundremoval) removes background from webcam without a green screen.
+- 🚧 Experimental 🚧 [CleanStream](https://github.com/occ-ai/obs-cleanstream) for real-time filler word (uh,um) and profanity removal from live audio stream
+- [URL/API Source](https://github.com/occ-ai/obs-urlsource) that allows fetching live data from an API and displaying it in OBS.
+- [LocalVocal](https://github.com/occ-ai/obs-localvocal) for real-time speech to text transcription in OBS.
 
 ## Download
-Check out the [latest releases](https://github.com/obs-ai/obs-brain/releases) for downloads and install instructions.
+Check out the [latest releases](https://github.com/occ-ai/obs-brain/releases) for downloads and install instructions.
 
 ## Building
 
