@@ -4,6 +4,7 @@
 #include <util/config-file.h>
 
 #include <string>
+#include <vector>
 
 struct llm_config_data {
 	// local or cloud
@@ -26,6 +27,9 @@ struct llm_config_data {
 
 	// system prompt
 	std::string system_prompt;
+
+    // end sequence
+    std::string end_sequence;
 
 	// workflows
 	std::vector<std::string> workflows;

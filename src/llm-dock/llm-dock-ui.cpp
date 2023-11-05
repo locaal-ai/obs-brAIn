@@ -75,6 +75,7 @@ LLMDockWidgetUI::LLMDockWidgetUI(QWidget *parent) : QDockWidget(parent), ui(new 
 
 	this->connect(this->ui->generate, &QPushButton::clicked, this, &LLMDockWidgetUI::generate);
 	this->connect(this->ui->clear, &QPushButton::clicked, this, &LLMDockWidgetUI::clear);
+	this->connect(this->ui->stop, &QPushButton::clicked, this, &LLMDockWidgetUI::stop);
 	this->connect(this, &LLMDockWidgetUI::update_text_signal, this,
 		      &LLMDockWidgetUI::update_text);
 	// connect workflows
@@ -92,6 +93,7 @@ void LLMDockWidgetUI::generate()
 	if (input_text.isEmpty()) {
 		return;
 	}
+    this->stop_flag = false;
 
 	this->ui->generated->insertHtml(
 		QString("<p style=\"color:#ffffff;\">%1</p><br/>").arg(input_text));
@@ -107,7 +109,20 @@ void LLMDockWidgetUI::generate()
 			[this](const std::string &partial_generation) {
 				emit update_text_signal(QString::fromStdString(partial_generation),
 							true);
-			});
+			},
+            [this](const std::string &generation) {
+                // check if the stop button was pressed or the generation ends with the end sequence
+                if (this->stop_flag) {
+                    return true;
+                }
+                if (!global_llm_config.end_sequence.empty()) {
+                    std::regex end_sequence_regex(global_llm_config.end_sequence);
+                    if (std::regex_search(generation, end_sequence_regex)) {
+                        return true;
+                    }
+                }
+                return false;
+            });
 		emit update_text_signal(QString("<br/>"), true);
 	});
 	t.detach();
@@ -117,6 +132,11 @@ void LLMDockWidgetUI::clear()
 {
 	this->ui->prompt->clear();
 	this->ui->generated->clear();
+}
+
+void LLMDockWidgetUI::stop()
+{
+    this->stop_flag = true;
 }
 
 void LLMDockWidgetUI::update_text(const QString &text, bool partial_generation)

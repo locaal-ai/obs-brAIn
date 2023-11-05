@@ -18,6 +18,7 @@ public:
 public slots:
 	void generate();
 	void clear();
+    void stop();
 	void update_text(const QString &text, bool partial_generation);
 
 signals:
@@ -25,6 +26,7 @@ signals:
 
 private:
 	Ui::BrainDock *ui;
+    bool stop_flag = false;
 };
 
 #endif // LLMDOCKWIDGETUI_HPP

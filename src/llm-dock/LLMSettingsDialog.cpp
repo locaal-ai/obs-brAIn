@@ -38,6 +38,7 @@ LLMSettingsDialog::LLMSettingsDialog(QWidget *parent) : QDialog(parent), ui(new 
 		global_llm_config.cloud_api_key = this->ui->apiKey->text().toStdString();
 		global_llm_config.cloud_model_name = this->ui->apiModel->text().toStdString();
 		global_llm_config.system_prompt = this->ui->sysPrompt->toPlainText().toStdString();
+		global_llm_config.end_sequence = this->ui->endSeq->text().toStdString();
 		global_llm_config.max_output_tokens = this->ui->maxTokens->text().toUShort();
 		global_llm_config.temperature = this->ui->temperature->text().toFloat();
 

@@ -34,19 +34,37 @@ std::string get_system_info(const llama_context_params &params)
 	return os.str();
 }
 
+void llama_batch_clear(struct llama_batch &batch)
+{
+	batch.n_tokens = 0;
+}
+
+void llama_batch_add(struct llama_batch &batch, llama_token id, llama_pos pos,
+		     const std::vector<llama_seq_id> &seq_ids, bool logits)
+{
+	batch.token[batch.n_tokens] = id;
+	batch.pos[batch.n_tokens] = pos, batch.n_seq_id[batch.n_tokens] = (int32_t)seq_ids.size();
+	for (size_t i = 0; i < seq_ids.size(); ++i) {
+		batch.seq_id[batch.n_tokens][i] = seq_ids[i];
+	}
+	batch.logits[batch.n_tokens] = logits;
+
+	batch.n_tokens++;
+}
+
 std::vector<llama_token> llama_tokenize(const struct llama_model *model, const std::string &text,
-					bool add_bos)
+					bool add_bos, bool special = false)
 {
 	// upper limit for the number of tokens
-	uint64_t n_tokens = text.length() + (uint64_t)add_bos;
+	int n_tokens = (int)text.length() + (add_bos ? 1 : 0);
 	std::vector<llama_token> result(n_tokens);
 	n_tokens = llama_tokenize(model, text.data(), (int)text.length(), result.data(),
-				  (int)result.size(), add_bos);
+				  (int)result.size(), add_bos, special);
 	if (n_tokens < 0) {
-		result.resize(std::abs((int)n_tokens));
+		result.resize(-n_tokens);
 		int check = llama_tokenize(model, text.data(), (int)text.length(), result.data(),
-					   (int)result.size(), add_bos);
-		GGML_ASSERT(check == (int)std::abs((int)n_tokens));
+					   (int)result.size(), add_bos, special);
+		GGML_ASSERT(check == -n_tokens);
 	} else {
 		result.resize(n_tokens);
 	}
@@ -54,9 +72,9 @@ std::vector<llama_token> llama_tokenize(const struct llama_model *model, const s
 }
 
 std::vector<llama_token> llama_tokenize(const struct llama_context *ctx, const std::string &text,
-					bool add_bos)
+					bool add_bos, bool special = false)
 {
-	return ::llama_tokenize(llama_get_model(ctx), text, add_bos);
+	return llama_tokenize(llama_get_model(ctx), text, add_bos, special);
 }
 
 std::string llama_token_to_piece(const struct llama_context *ctx, llama_token token)
@@ -118,15 +136,15 @@ struct llama_context *llama_init_context(const std::string &model_file_path)
 		obs_log(LOG_INFO, "warming up the model with an empty run");
 
 		std::vector<llama_token> tokens_list = {
-			llama_token_bos(ctx_llama),
-			llama_token_eos(ctx_llama),
+			llama_token_bos(llama_get_model(ctx_llama)),
+			llama_token_eos(llama_get_model(ctx_llama)),
 		};
 
 		llama_decode(ctx_llama, llama_batch_get_one(tokens_list.data(),
 							    (int)std::min(tokens_list.size(),
 									  (size_t)lparams.n_batch),
 							    0, 0));
-		llama_kv_cache_tokens_rm(ctx_llama, -1, -1);
+		llama_kv_cache_clear(ctx_llama);
 		llama_reset_timings(ctx_llama);
 
 		obs_log(LOG_INFO, "warmed up the model");
@@ -137,7 +155,8 @@ struct llama_context *llama_init_context(const std::string &model_file_path)
 }
 
 std::string llama_inference(const std::string &promptIn, struct llama_context *ctx,
-			    std::function<void(const std::string &)> partial_generation_callback)
+			    std::function<void(const std::string &)> partial_generation_callback,
+                std::function<bool(const std::string &)> should_stop_callback)
 {
 	std::string output = "";
 
@@ -170,16 +189,11 @@ std::string llama_inference(const std::string &promptIn, struct llama_context *c
 	// create a llama_batch with size 512
 	// we use this object to submit token data for decoding
 
-	llama_batch batch = llama_batch_init(512, 0);
+	llama_batch batch = llama_batch_init(512, 0, 1);
 
 	// evaluate the initial prompt
-	batch.n_tokens = (int)tokens_list.size();
-
-	for (int32_t i = 0; i < batch.n_tokens; i++) {
-		batch.token[i] = tokens_list[i];
-		batch.pos[i] = i;
-		batch.seq_id[i] = 0;
-		batch.logits[i] = false;
+	for (size_t i = 0; i < tokens_list.size(); i++) {
+		llama_batch_add(batch, tokens_list[i], (llama_pos)i, {0}, false);
 	}
 
 	// llama_decode will output logits only for the last token of the prompt
@@ -219,22 +233,20 @@ std::string llama_inference(const std::string &promptIn, struct llama_context *c
 				llama_sample_token_greedy(ctx, &candidates_p);
 
 			// is it an end of stream?
-			if (new_token_id == llama_token_eos(ctx) || n_cur == n_len) {
+			if (new_token_id == llama_token_eos(llama_get_model(ctx)) ||
+			    n_cur == n_len) {
 				break;
 			}
 
-			partial_generation_callback(llama_token_to_piece(ctx, new_token_id));
+            std::string piece = llama_token_to_piece(ctx, new_token_id);
+			partial_generation_callback(piece);
+            output += piece;
 
 			// prepare the next batch
-			batch.n_tokens = 0;
+			llama_batch_clear(batch);
 
 			// push this new token for next evaluation
-			batch.token[batch.n_tokens] = new_token_id;
-			batch.pos[batch.n_tokens] = n_cur;
-			batch.seq_id[batch.n_tokens] = 0;
-			batch.logits[batch.n_tokens] = true;
-
-			batch.n_tokens += 1;
+			llama_batch_add(batch, new_token_id, n_cur, {0}, true);
 
 			n_decode += 1;
 		}
@@ -246,10 +258,14 @@ std::string llama_inference(const std::string &promptIn, struct llama_context *c
 			obs_log(LOG_ERROR, "%s : failed to eval, return code %d", __func__, 1);
 			return "";
 		}
+
+        if (should_stop_callback(output)) {
+            break;
+        }
 	}
 
 	// reset the KV cache
-	llama_kv_cache_tokens_rm(ctx, -1, -1);
+	llama_kv_cache_clear(ctx);
 	llama_reset_timings(ctx);
 
 	const auto t_main_end = ggml_time_us();
