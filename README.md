@@ -6,6 +6,7 @@
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/occ-ai/obs-brain/push.yaml)](https://github.com/occ-ai/obs-brain/actions/workflows/push.yaml)
 [![Total downloads](https://img.shields.io/github/downloads/occ-ai/obs-brain/total)](https://github.com/occ-ai/obs-brain/releases)
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/occ-ai/obs-brain)](https://github.com/occ-ai/obs-brain/releases)
+[![Discord](https://img.shields.io/discord/1200229425141252116)](https://discord.gg/KbjGU2vvUz)
 
 </div>
 
